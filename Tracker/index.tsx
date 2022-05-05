@@ -8,6 +8,8 @@ import HorizontalScroll from '../Tracker/HorizontalScroll';
 import { FpsView } from 'react-fps';
 import data from '../data';
 import Sausage from '../Tracker/Sausage';
+import RowGroup from '../Tracker/RowGroup';
+import Sidelabel from '../components/Sidelabel';
 
 export default function Tracker() {
   const ref = React.useRef();
@@ -37,27 +39,34 @@ export default function Tracker() {
       }}
       ref={ref}
     >
-      {/* <FpsView /> */}
+      <FpsView />
       <TrackerContextProvider canvasBounds={bounds}>
         <Headers height={50} />
         <Content>
+          <Row
+            side={<Sidelabel>Hello</Sidelabel>}
+            main={
+              <Sausage from={'2022-01-01'} to={'2022-05-01'} text={'Darren'} />
+            }
+          />
           {data.map((info, idx) => (
-            <Row
-              key={`row_${idx}`}
-              side={
-                <div style={{ padding: 10 }}>
-                  <b>{info.name}</b>
-                </div>
-              }
-              main={
-                <Sausage
-                  key={`sausage_${idx}`}
-                  from={info.from}
-                  to={info.to}
-                  text={info.name}
-                />
-              }
-            />
+            <RowGroup key={`group_${idx}`} data={info.data} name={info.name} />
+            // <Row
+            //   key={`row_${idx}`}
+            //   side={
+            //     <div style={{ padding: 10 }}>
+            //       <b>{info.name}</b>
+            //     </div>
+            //   }
+            //   main={
+            //     <Sausage
+            //       key={`sausage_${idx}`}
+            //       from={info.from}
+            //       to={info.to}
+            //       text={info.name}
+            //     />
+            //   }
+            // />
           ))}
         </Content>
         <HorizontalScroll />

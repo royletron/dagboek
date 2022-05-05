@@ -6,7 +6,6 @@ export default function Row({ side, main }) {
   return (
     <div
       style={{
-        borderBottom: '2px solid yellow',
         display: 'inline-flex',
         width: '100%',
       }}

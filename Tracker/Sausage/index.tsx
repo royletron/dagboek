@@ -5,7 +5,7 @@ import getRelativeCoordinates from '../../utils/getRelativeCoordinates';
 import useStateWithOverride from '../../utils/useStateWithOverride';
 
 function Sausage({ from, to, text }) {
-  const { dayWidth, xPosition, canvasBounds, sidebarWidth } =
+  const { dayWidth, xPosition, canvasBounds, sidebarWidth, getXPoint } =
     React.useContext(TrackerContext);
   const [localFrom, setLocalFrom] = useStateWithOverride(from);
   const [localTo, setLocalTo] = useStateWithOverride(to);
@@ -13,18 +13,11 @@ function Sausage({ from, to, text }) {
   const leftRef = React.useRef();
   const rightRef = React.useRef();
   const [labelWidth, setLabelWidth] = React.useState(0);
-  const left = React.useMemo(() => {
-    const today = dayjs();
-    const fromDate = dayjs(localFrom);
-    const days = fromDate.diff(today, 'days');
-    return days * dayWidth;
-  }, [localFrom, dayWidth]);
-  const width = React.useMemo(() => {
-    const fromDate = dayjs(localFrom);
-    const toDate = dayjs(localTo);
-    const days = toDate.diff(fromDate, 'days');
-    return days * dayWidth;
-  }, [localFrom, localTo, dayWidth]);
+  const left = React.useMemo(() => getXPoint(localFrom), [localFrom, dayWidth]);
+  const width = React.useMemo(
+    () => getXPoint(localTo) - left,
+    [left, localTo, dayWidth]
+  );
   React.useEffect(() => {
     if (labelRef.current) {
       const spanWidth = labelRef.current.getBoundingClientRect().width;
@@ -49,11 +42,22 @@ function Sausage({ from, to, text }) {
       const coords = getRelativeCoordinates(e, rightRef.current);
       setLocalTo((current) => {
         return dayjs(current)
-          .add(Math.floor(coords.x / dayWidth), 'days')
+          .add(Math.floor((coords.x - xPosition) / dayWidth), 'days')
           .format('YYYY-MM-DD');
       });
     },
-    [setLocalTo]
+    [setLocalTo, xPosition]
+  );
+  const onLeftMove = React.useCallback(
+    (e) => {
+      const coords = getRelativeCoordinates(e, leftRef.current);
+      setLocalFrom((current) =>
+        dayjs(current)
+          .add(Math.floor((coords.x - xPosition) / dayWidth), 'days')
+          .format('YYYY-MM-DD')
+      );
+    },
+    [setLocalFrom, xPosition]
   );
   const rightDown = () => {
     const onUp = () => {
@@ -66,21 +70,13 @@ function Sausage({ from, to, text }) {
     window.addEventListener('mouseup', onUp);
   };
   const leftDown = () => {
-    const onMove = (e) => {
-      const coords = getRelativeCoordinates(e, leftRef.current);
-      setLocalFrom((current) =>
-        dayjs(current)
-          .add(Math.floor(coords.x / dayWidth), 'days')
-          .format('YYYY-MM-DD')
-      );
-    };
     setDragging(true);
     const onUp = () => {
       setDragging(false);
-      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mousemove', onLeftMove);
       window.removeEventListener('mouseup', onUp);
     };
-    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onLeftMove);
     window.addEventListener('mouseup', onUp);
   };
   const leftTotal = left;

@@ -14,6 +14,7 @@ export default function Sidebar() {
         bottom: 0,
         zIndex: 0,
         borderRight: '1px solid orange',
+        pointerEvents: 'none',
       }}
     ></div>
   );

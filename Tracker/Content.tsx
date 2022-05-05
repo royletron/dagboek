@@ -39,14 +39,14 @@ export default function Content({ children }) {
         >
           <div
             style={{
-              position: 'absolute',
+              position: 'fixed',
               left: '50%',
               zIndex: 199,
               top: 0,
               bottom: 0,
               background: 'blue',
               width: '1px',
-              transform: `translate(${xPosition}px, 0px)`,
+              transform: `translate(${xPosition + sidebarWidth / 2}px, 0px)`,
             }}
           />
         </div>

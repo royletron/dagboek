@@ -24,6 +24,7 @@ export function TrackerContextProvider({
   children,
   ...props
 }: TrackerContextProps) {
+  const now = React.useMemo(() => dayjs(), []);
   const { initialSidebarWidth, canvasBounds, dayWidth } = {
     ...defaults,
     ...props,
@@ -47,6 +48,14 @@ export function TrackerContextProvider({
       setRangeInYears((current) => current + 1);
     }
   }, [currentDay]);
+  const getXPoint = React.useCallback(
+    (dateString) => {
+      const date = dayjs(dateString);
+      const days = date.diff(now, 'days');
+      return days * dayWidth;
+    },
+    [now, dayWidth]
+  );
   return (
     <TrackerContext.Provider
       value={{
@@ -58,6 +67,7 @@ export function TrackerContextProvider({
         xPosition,
         setXPosition,
         rangeInPixels,
+        getXPoint,
       }}
     >
       {children}
